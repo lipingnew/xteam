@@ -12,18 +12,23 @@
         </p>
       </div>
      </div>
+      <j-loading v-if='isLoading' class='u-loading'></j-loading>
      <div class="u-main u-mains">
         <div class="u-content">
           <div class="u-contents-item">
-            <div class="u-item-box u-items-box" v-for='(item, key) in currentItem' @mouseenter='moveItem(key)' @mouseleave='outItem'>
-              <div v-if='activeIndex === key && item.prod == null'  class="u-dialog">
-                <j-button @click="addProds(item.gid)" type="primary">添加</j-button>
-              </div>
-              <div class='u-item-title u-items-title'>{{item['barcode']}}</div>
-              <div class='u-item-contents'>
-                <span v-if='item.prod != null' class='u-del' @click='delProd(item.gid)'>x</span>
-                <img v-if='item.prod != null' class='u-item-img' :src='item.prod.img_url'/>
-              </div>
+            <div class="u-items-box" v-for='(item, key) in currentItem' @mouseenter='moveItem(key)' @mouseleave='outItem'>
+              <j-popover ref="pop" maxWidth="800" placement="top" trigger='hover'>
+                <div slot="content" v-if='item.prod != null'>{{item.prod.name}}</div>
+                <div slot="content" v-else>暂无商品，请添加~</div>
+                <div v-if='activeIndex === key && item.prod == null'  class="u-dialog">
+                  <j-button @click="addProds(item.gid)" type="primary">添加</j-button>
+                </div>
+                <div class='u-item-title u-items-title'>{{item['barcode']}}</div>
+                <div class='u-item-contents'>
+                  <span v-if='item.prod != null' class='u-del' @click='delProd(item.gid)'>x</span>
+                  <img v-if='item.prod != null' class='u-item-img' :src='item.prod.img_url'/>
+                </div>
+              </j-popover>
             </div>
             <div class='u-foot'>注：底层货架限重6.5kg</div>
           </div>
@@ -40,19 +45,23 @@ export default {
     return {
       isShowEdit: false,
       mockData: [1,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,],
-      activeIndex: -1
+      activeIndex: -1,
+      isLoading: false
+    }
+  },
+  watch: {
+    currentItem() {
+      this.isLoading = false;
     }
   },
   created() {
-    console.log(this.currentItem);
-    console.log('=====');
     if (localStorage.getItem('isSign') != 'true') {
       this.$router.push('/sign');
     }
   },
   methods: {
     clickItem(currentItem) {
-      console.log(currentItem);
+      this.isLoading = true;
       this.$emit('changeNavIndex', currentItem);
     },
     back() {
@@ -78,11 +87,13 @@ export default {
             if (res.data.data === 1) {
               this.$Message.success('删除成功');
               this.$emit('delSuccess');
+            } else {
+              this.$Message.error('删除失败！');
             }
           })
           .catch(err => { 
             console.log(err);
-            this.$Message.error('服务器出错！');
+            this.$Message.error('删除失败！');
           })
       }})
     },
@@ -97,6 +108,14 @@ export default {
     min-height: 800px!important;
     padding-bottom: 50px;
   }
+  .u-loading {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 50%;
+    z-index: 999;
+    left: 100px;
+  }
   .u-contents-item {
     width: 1000px;
     flex: 1;
@@ -110,11 +129,15 @@ export default {
   .u-items-box {
     width: 160px;
     height: 180px;
-    margin-right: 8px;
-    display: flex;
-    display: -webkit-flex;
     border: 3px solid #fff;
     flex-direction: column;
+    display: flex;
+    display: -webkit-flex;
+    margin-right: 8px;
+    position: relative;
+  }
+  .u-items-box:hover {
+    border: 3px solid #00f;
   }
   .u-foot {
     width: 100%;
@@ -145,9 +168,10 @@ export default {
     position: absolute;
     right: 8px;
     top: 32px;
+    cursor: pointer;
   }
   .u-item-contents {
-    flex: 1;
+    height: 156px;
     display: flex;
     display: -webkit-flex;
     justify-content: center;
@@ -174,9 +198,6 @@ export default {
     position: absolute;
     left: 0;
     bottom: 0;
-  }
-  .u-items-box {
-    position: relative;
   }
   .u-nav {
     background: #fff!important;

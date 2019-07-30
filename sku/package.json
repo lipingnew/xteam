@@ -13,7 +13,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "@baidu/jimu-vue": "^0.2.52",
+    "@baidu/jimu-vue": "^0.2.58",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },

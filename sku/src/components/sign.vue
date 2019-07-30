@@ -7,7 +7,7 @@
           <j-input v-model="form.signName" placeholder="请输入用户名"/>
         </j-form-item>
         <j-form-item prop="signPwd">
-          <j-input v-model="form.signPwd" placeholder="请输入密码"/>
+          <j-input type='password' inputType='password' v-model="form.signPwd" placeholder="请输入密码"/>
         </j-form-item>
         <j-form-item>
             <j-button @click="sign" to='' type="primary">登录</j-button>
@@ -76,8 +76,9 @@ export default {
   .s-form {
     width: 420px!important;
     margin-top: 80px!important;
+    margin-left: -40px;
   }
-  .jimu-form-item-content {
+  .s-box .jimu-form-item-content {
     padding-right: 20px;
     text-align: left;
   }

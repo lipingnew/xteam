@@ -105,4 +105,19 @@
   .text-alignR {
     float: right;
   }
+  @media screen and (max-width: 1600px) {
+    .jimu-sider, .jimu-menu, .jimu-menu-wrap-collap-btn {
+      width: 100px!important;
+    }
+    .jimu-menu-item div, .jimu-menu-item>i {
+      padding-left: 0px!important;
+    }
+    .jimu-modal-container {
+      top: 30px!important;
+    }
+    .jimu-modal-mask {
+      position: absolute!important;
+      padding-bottom: 50px!important;
+    }
+  }
 </style>

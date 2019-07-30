@@ -1,7 +1,7 @@
 <template>
   <j-modal class="W-form" :width="600" :title="addOrEdit === 'add' ? '添加商品' : '编辑商品'" v-model="dialogShow" @on-cancel='oncancel' 
   >
-      <j-form :model="form" :rules="rules" ref="form" style="width: 100%; margin-top: 30px;">
+      <j-form :model="form" :rules="rules" ref="form" style="width: 100%; margin-top: 10px;">
         <j-form-item prop="name" label="商品名称">
           <j-input v-model="form.name" placeholder="请输入商品名称"/>
         </j-form-item>
@@ -15,7 +15,7 @@
           <j-input v-model="form.unit" placeholder="请输入商品单位，如xxxx"/>
         </j-form-item>
         <j-form-item prop="spec" label="规格">
-          <j-input v-model="form.spec" placeholder="请输入商品规格，如草莓味"/>
+          <j-input v-model="form.spec" placeholder="请输入商品规格，如110g"/>
         </j-form-item>
         <j-form-item prop="origin" label="原产地">
           <j-input v-model="form.origin" placeholder="请输入原产地"/>
@@ -31,7 +31,7 @@
             <em @click='delPic'>x</em>
             <img :src='form.img_url'/>
           </div>
-          <div class="w-image" v-if="!changeStatus">
+          <div class="w-image" :style="{'position': changeStatus ? 'absolute' : '', 'left': changeStatus ? '140px' : ''}">
             图片格式jpg.png.建议尺寸80*80
           </div>
           <form class="w-fileForm"  id="file" method="post" enctype="multipart/form-data"> 
@@ -135,7 +135,8 @@ export default {
             that.changeStatus = false;
           })
           .catch(err => { 
-            that.$Message.error('服务器出错！');
+            console.log(err);
+            that.$Message.error('图片上传失败！');
           });
           
       }
@@ -145,16 +146,17 @@ export default {
       let res = await this.$refs.form.validate();
       if (res) {
         let params = {
-          name: this.form.name,
-          pinyin: this.form.pinyin,
-          barcode: this.form.barcode,
-          unit: this.form.unit,
-          spec: this.form.spec,
-          origin: this.form.origin,
-          sale_price: this.form.sale_price * 1,
-          real_sale_price: this.form.real_sale_price * 1,
-          img_url: this.form.img_url,
+          name: this.form.name.trim(),
+          pinyin: this.form.pinyin.trim(),
+          barcode: this.form.barcode.trim(),
+          unit: this.form.unit.trim(),
+          spec: this.form.spec.trim(),
+          origin: this.form.origin.trim(),
+          sale_price: (this.form.sale_price .trim())* 1,
+          real_sale_price: (this.form.real_sale_price .trim())* 1,
+          img_url: this.form.img_url.trim(),
           stock: 0,
+          grade: 0,
           cost_price: 0
         }
         let url;
@@ -167,16 +169,24 @@ export default {
         this.$http
           .post(url, params)
           .then(res => {
+            console.log(res.data.data);
             if (res.data.data === 1) {
               if (this.addOrEdit === 'add') {
-                this.$Message.info('添加成功');
+                this.$Message.success('添加成功');
               } else {
-                this.$Message.info('修改成功');
+                this.$Message.success('修改成功');
               }
               this.sure();
+            } else {
+              if (this.addOrEdit === 'add') {
+                this.$Message.error('添加失败');
+              } else {
+                this.$Message.error('修改失败');
+              }
             }
           })
           .catch(err => { 
+            console.log(err);
             this.$Message.error('服务器出错！');
           });
         this.dialogShow = false;
@@ -231,6 +241,7 @@ export default {
     height: 100%;
   }
   .w-picture em {
+    cursor: pointer;
     position: absolute;
     right: 0;
     top: -10px;
@@ -241,6 +252,11 @@ export default {
   .w-image {
     color: #ccc;
     margin-bottom: 20px;
+  }
+  .w-image2　{
+    color: #ccc!important;
+    position: absolute!important;
+    left: 150px!important;
   }
   .w-fileForm {
     width: 99px;

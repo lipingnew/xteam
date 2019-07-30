@@ -3,12 +3,15 @@
     <j-input style="margin: 10px 0;" size="small"  v-model='prodName' @on-change="searchName" placeholder='请输入商品名称或拼音'/>
     <div class='u-list'>
       <j-radio-group>
-          <j-radio class='u-list-main' v-for="(item, key) in listData" :label="key" :key='key' @click='getcode(item.barcode)'>
+          <j-radio  v-for="(item, key) in listData" :label="key" :key='key' class='u-list-main'>
             <div class='u-bigbox' @click='getcode(item.barcode)'>
               <img class='u-list-img' :src='item.img_url'/>
               <div class='u-list-desc'>
-                <p>{{item.name}}</p>
-                <p>{{item.grade}}</p>
+                <p class='u-list-desc-one' :title='item.name'>{{item.name}}</p>
+                <j-popover  v-if='item.lanes.length !== 0' style='width: 480px;' ref="pop" maxWidth="800" placement="top" trigger='hover'>
+                  <div slot="content"><span v-for='items in item.lanes'>{{items.rack_id}}-{{items.row_no}}-{{items.column_no}},  </span></div>
+                  <p><span>位置：</span><span v-for='items in item.lanes'>{{items.rack_id}}-{{items.row_no}}-{{items.column_no}}  </span></p>
+                </j-popover>
               </div>
             </div>
           </j-radio>
@@ -50,7 +53,7 @@ export default {
           this.listData = res.data.data.prods;
         })
         .catch(err => { 
-          this.$Message.error('服务器出错！');
+          this.$Message.error('获取数据失败');
         })
     },
     searchName() {
@@ -58,17 +61,16 @@ export default {
     },
     getcode(val) {
       this.barcode = val;
-      console.log('=====');
-      console.log(val);
-      console.log('=====');
     },
     async onok() {
       this.dialogShow = false;
       this.$emit('cancelDialog', this.barcode);
+      document.body.style='overflow-y: scroll;'
     },
     oncancel() {
       this.dialogShow = false;
       this.$emit('cancelDialog', 0);
+      document.body.style='overflow-y: scroll;'
     }
   }
 }
@@ -83,6 +85,7 @@ export default {
     height: 600px;
     margin-bottom: 20px;
     overflow-y: scroll!important;
+    overflow-x: hidden!important;
   }
   .u-dialog-footer-r {
     margin-right: 10px;
@@ -96,31 +99,58 @@ export default {
   }
   .u-list-main {
     width: 100%;
-    display: flex;
-    display: -webkit-flex;
+    height: 80px;
+    display: flex!important;
+    display: -webkit-flex!important;
     margin-top: 20px;
+    position: relative;
   }
   .u-list-img {
     width: 80px;
     height: 80px;
     margin-right: 8px;
   }
+  .u-list-main .jimu-radio-label {
+    width: 100%!important;
+    position: absolute;
+    left: -50px;
+    top: 0;
+    padding-left: 40px;
+  }
   .u-list-main .jimu-radio-label .u-bigbox {
     height: 80px!important;
     display: flex;
     display: -webkit-flex;
+    left: 0;
+    top: 0;
+    padding-left: 40px;
   }
   .u-list-main .jimu-radio-icon { 
     margin-top: 40px;
     margin-right: 8px;
   }
-  .u-list-desc p:first-child {
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 5px!important;
+  .u-list-desc {
+    width: 380px;
   }
   .u-list-desc p {
     margin-top: 8px!important;
     margin-bottom: 0px!important;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+  }
+  .u-list-desc-one {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px!important;
+  }
+  .jimu-radio-icon {
+    display:block!important;
+    padding: 3px!important;
+  }
+  @media screen and (max-width: 1600px) {
+    .u-list {
+      height: 450px!important;
+    }
   }
 </style>
